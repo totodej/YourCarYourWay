@@ -1,0 +1,42 @@
+<div class="chat-container">
+  <!-- En-tête du chat -->
+  <div class="chat-header">
+    <h2>Chat Client / Platform</h2>
+    <span>Conversation</span>
+  </div>
+
+  <!-- Fenêtre de conversation -->
+  <div class="chat-body">
+
+    <!-- Messages dynamiques venant du WebSocket -->
+    <div
+      *ngFor="let msg of messages"
+      class="message"
+      [ngClass]="{
+        'client-message': msg.sender === 'Client',
+        'platform-message': msg.sender === 'Platform',
+      }"
+    >
+      <div class="message-author">
+        {{ msg.sender }}
+      </div>
+
+      <div class="message-content">
+        {{ msg.content }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone d'envoi -->
+  <div class="chat-footer">
+    <select [(ngModel)]="sender">
+      <option value="Client">Client</option>
+
+      <option value="Platform">Platform</option>
+    </select>
+
+    <input [(ngModel)]="message" placeholder="Écrire un message..." />
+
+    <button (click)="send()">Envoyer</button>
+  </div>
+</div>
