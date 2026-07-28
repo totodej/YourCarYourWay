@@ -3,26 +3,20 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ChatService } from '../../services/chatService';
+import { ChatMessage } from '../../models/message';
 
 @Component({
   selector: 'app-chat',
-
   standalone: true,
-
   imports: [CommonModule, FormsModule],
-
   templateUrl: './chat.html',
-
   styleUrls: ['./chat.css'],
 })
 export class ChatComponent implements OnInit {
   conversationId = '123';
-
   sender = 'Client';
-
   message = '';
-
-  messages: any[] = [];
+  messages: ChatMessage[] = [];
 
   private chatService: ChatService = inject(ChatService);
   
@@ -34,7 +28,7 @@ export class ChatComponent implements OnInit {
     this.chatService.connect(
       this.conversationId,
 
-      (message: any) => {
+      (message: ChatMessage) => {
         this.messages.push(message);
       },
     );
@@ -49,7 +43,7 @@ export class ChatComponent implements OnInit {
       return;
     }
 
-    this.chatService.sendMessage(this.conversationId, this.sender, this.message,);
+    this.chatService.sendMessage(this.conversationId, this.sender, this.message);
     this.message = '';
   }
 }
