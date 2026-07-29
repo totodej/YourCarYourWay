@@ -3,152 +3,116 @@ CREATE DATABASE your_car_your_way;
 USE your_car_your_way;
 
 
--- =====================================
--- USERS
--- =====================================
-
 CREATE TABLE USERS (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    firstname VARCHAR(100) NOT NULL,
-    lastname VARCHAR(100) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
+    firstname VARCHAR(100),
+    lastname VARCHAR(100),
+    email VARCHAR(255) UNIQUE,
+    password_hash VARCHAR(255),
     birth_date DATE,
     address VARCHAR(255),
-    phone_number VARCHAR(50),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP 
-        ON UPDATE CURRENT_TIMESTAMP
+    phone_number VARCHAR(20),
+    created_at DATETIME,
+    updated_at DATETIME
 );
 
-
--- =====================================
--- AGENCIES
--- =====================================
 
 CREATE TABLE AGENCIES (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(150) NOT NULL,
-    city VARCHAR(100) NOT NULL,
-    address VARCHAR(255) NOT NULL,
-    opening_hours VARCHAR(255),
-    phone_number VARCHAR(50)
+    name VARCHAR(100),
+    city VARCHAR(100),
+    address VARCHAR(255),
+    opening_hours VARCHAR(100),
+    phone_number VARCHAR(20)
 );
 
 
--- =====================================
--- RENTAL_OFFERS
--- =====================================
+CREATE TABLE VEHICLES (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    agency_id INT NOT NULL,
+    registration_number VARCHAR(50),
+    brand VARCHAR(100),
+    model VARCHAR(100),
+    acriss_category VARCHAR(50),
+    status VARCHAR(50),
+    created_at DATETIME,
+    updated_at DATETIME,
+
+    CONSTRAINT fk_vehicle_agency
+    FOREIGN KEY (agency_id)
+    REFERENCES AGENCIES(id)
+);
+
 
 CREATE TABLE RENTAL_OFFERS (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    departure_agency_id INT,
+    return_agency_id INT,
+    start_datetime DATETIME,
+    end_datetime DATETIME,
+    acriss_category VARCHAR(50),
+    price DECIMAL(10,2),
 
-    departure_agency_id INT NOT NULL,
-    return_agency_id INT NOT NULL,
-
-    start_datetime DATETIME NOT NULL,
-    end_datetime DATETIME NOT NULL,
-
-    acriss_category VARCHAR(50) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
-
-    CONSTRAINT fk_offer_departure_agency
-        FOREIGN KEY (departure_agency_id)
+    FOREIGN KEY (departure_agency_id)
         REFERENCES AGENCIES(id),
 
-    CONSTRAINT fk_offer_return_agency
-        FOREIGN KEY (return_agency_id)
+    FOREIGN KEY (return_agency_id)
         REFERENCES AGENCIES(id)
 );
 
 
--- =====================================
--- RESERVATIONS
--- =====================================
-
 CREATE TABLE RESERVATIONS (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    offer_id INT,
+    vehicle_id INT,
+    status VARCHAR(50),
+    total_amount DECIMAL(10,2),
+    created_at DATETIME,
 
-    user_id INT NOT NULL,
-    offer_id INT NOT NULL,
+    FOREIGN KEY (user_id)
+        REFERENCES USERS(id),
 
-    status VARCHAR(50) NOT NULL,
-    total_amount DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (offer_id)
+        REFERENCES RENTAL_OFFERS(id),
 
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_reservation_user
-        FOREIGN KEY (user_id)
-        REFERENCES USERS(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_reservation_offer
-        FOREIGN KEY (offer_id)
-        REFERENCES RENTAL_OFFERS(id)
+    FOREIGN KEY (vehicle_id)
+        REFERENCES VEHICLES(id)
 );
 
-
--- =====================================
--- PAYMENTS
--- =====================================
 
 CREATE TABLE PAYMENTS (
     id INT AUTO_INCREMENT PRIMARY KEY,
-
-    reservation_id INT NOT NULL,
-
+    reservation_id INT,
     provider_reference VARCHAR(255),
-    payment_status VARCHAR(50) NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
+    payment_status VARCHAR(50),
+    amount DECIMAL(10,2),
+    created_at DATETIME,
 
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_payment_reservation
-        FOREIGN KEY (reservation_id)
+    FOREIGN KEY (reservation_id)
         REFERENCES RESERVATIONS(id)
-        ON DELETE CASCADE
 );
 
-
--- =====================================
--- SUPPORT_TICKETS
--- =====================================
 
 CREATE TABLE SUPPORT_TICKETS (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    subject VARCHAR(255),
+    status VARCHAR(50),
+    created_at DATETIME,
 
-    user_id INT NOT NULL,
-
-    subject VARCHAR(255) NOT NULL,
-    status VARCHAR(50) NOT NULL,
-
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-
-    CONSTRAINT fk_ticket_user
-        FOREIGN KEY (user_id)
+    FOREIGN KEY(user_id)
         REFERENCES USERS(id)
-        ON DELETE CASCADE
 );
 
 
--- =====================================
--- SUPPORT_MESSAGES
--- =====================================
-
 CREATE TABLE SUPPORT_MESSAGES (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    ticket_id INT,
+    sender_type VARCHAR(50),
+    content TEXT,
+    created_at DATETIME,
 
-    ticket_id INT NOT NULL,
-
-    sender_type VARCHAR(50) NOT NULL,
-    content TEXT NOT NULL,
-
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-
-
-    CONSTRAINT fk_message_ticket
-        FOREIGN KEY (ticket_id)
+    FOREIGN KEY(ticket_id)
         REFERENCES SUPPORT_TICKETS(id)
-        ON DELETE CASCADE
 );
